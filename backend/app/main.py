@@ -11,7 +11,15 @@ from app.api.v1.endpoints import auth
 from app.api.v1.endpoints import auth, categories
 from app.api.v1.endpoints import auth, categories, products
 from app.api.v1.endpoints import auth, categories, products, orders
-
+from app.api.v1.endpoints import (
+    auth,
+    categories,
+    products,
+    orders,
+    stripe_webhook,
+    stats,
+    admin_users,
+)
 
 
 @asynccontextmanager
@@ -46,7 +54,9 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
 app.include_router(products.router, prefix="/api/v1/products", tags=["products"])
 app.include_router(orders.router, prefix="/api/v1/orders", tags=["orders"])
-
+app.include_router(stripe_webhook.router, prefix="/api/v1/stripe", tags=["stripe"])
+app.include_router(stats.router, prefix="/api/v1/stats", tags=["stats"])
+app.include_router(admin_users.router, prefix="/api/v1/admin/users", tags=["admin"])
 
 @app.get("/")
 def bonjour():

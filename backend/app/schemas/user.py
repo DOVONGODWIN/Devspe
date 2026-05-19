@@ -27,3 +27,6 @@ class UserRead(UserBase):
     role: UserRole
     is_active: bool
     created_at: datetime
+class UserAdminUpdate(BaseModel):
+    is_active: Optional[bool] = None
+    role: Optional[UserRole] = None
