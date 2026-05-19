@@ -8,14 +8,17 @@ from sqlalchemy import select
 
 from app.db.session import get_db
 from app.core.security import decode_token
+from fastapi.security import HTTPAuthorizationCredentials
 from app.models.user import User, UserRole
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
+from fastapi.security import HTTPBearer
+
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
-    token: Annotated[str | None, Depends(oauth2_scheme)],
+    creds: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
     credentials_exception = HTTPException(
@@ -24,8 +27,10 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    if token is None:
+    if creds is None or not creds.credentials:
         raise credentials_exception
+
+    token = creds.credentials
 
     try:
         payload = decode_token(token)

@@ -8,6 +8,10 @@ from app.core.config import settings
 from app.db import base_all  # noqa: F401  -- enregistre tous les modeles SQLAlchemy
 
 from app.api.v1.endpoints import auth
+from app.api.v1.endpoints import auth, categories
+from app.api.v1.endpoints import auth, categories, products
+from app.api.v1.endpoints import auth, categories, products, orders
+
 
 
 @asynccontextmanager
@@ -39,6 +43,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
+app.include_router(products.router, prefix="/api/v1/products", tags=["products"])
+app.include_router(orders.router, prefix="/api/v1/orders", tags=["orders"])
+
 
 @app.get("/")
 def bonjour():
