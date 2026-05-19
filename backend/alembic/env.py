@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 from app.core.config import settings
-from app.db.base import Base  # importe tous les modeles via base.py
+from app.db.base_all import Base  # importe tous les modeles via base.py
 
 config = context.config
 

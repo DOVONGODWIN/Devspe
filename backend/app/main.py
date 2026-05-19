@@ -1,9 +1,13 @@
+"""Point d'entree FastAPI."""
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
+from app.db import base_all  # noqa: F401  -- enregistre tous les modeles SQLAlchemy
+
+from app.api.v1.endpoints import auth
 
 
 @asynccontextmanager
@@ -34,10 +38,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 
 @app.get("/")
 def bonjour():
-    return {"message": "Bonjour depuis nexaspa!"}
+    return {"message": " backnd marche tourn sur le port 8003 "}
 
 # ===== Healthcheck =====
 @app.get("/health", tags=["meta"])
