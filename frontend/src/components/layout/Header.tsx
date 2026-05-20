@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, LayoutGrid, Plus, ShoppingCart, User, ShoppingBag } from "lucide-react";
+import { Home, LayoutGrid, Plus, ShoppingCart, User, ShoppingBag, LogOut, ChevronDown } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -7,7 +8,8 @@ export default function Header() {
   const nav = useNavigate();
   const { pathname } = useLocation();
   const { count } = useCart();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const link = (to: string, label: string, icon: React.ReactNode) => {
     const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
@@ -23,6 +25,12 @@ export default function Header() {
       </button>
     );
   };
+
+  async function handleLogout() {
+    setMenuOpen(false);
+    await logout();
+    nav("/login");
+  }
 
   return (
     <header className="hidden md:block sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-silver/50">
@@ -53,15 +61,57 @@ export default function Header() {
               </span>
             )}
           </button>
-          <button
-            onClick={() => nav(user ? "/profile" : "/login")}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-nex-grad text-white font-semibold text-sm"
-          >
-            <User size={18} />
-            {user ? (user.full_name?.split(" ")[0] || "Profil") : "Connexion"}
-          </button>
+
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen((o) => !o)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-nex-grad text-white font-semibold text-sm"
+              >
+                <User size={18} />
+                {user.full_name?.split(" ")[0] || "Profil"}
+                <ChevronDown size={15} className={`transition ${menuOpen ? "rotate-180" : ""}`} />
+              </button>
+              {menuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl shadow-ink/10 border border-silver/50 py-2 z-50">
+                    <MenuItem label="Mon profil" onClick={() => { setMenuOpen(false); nav("/profile"); }} icon={<User size={16} />} />
+                    <MenuItem label="Mes produits" onClick={() => { setMenuOpen(false); nav("/my-products"); }} icon={<ShoppingBag size={16} />} />
+                    <MenuItem label="Mes ventes" onClick={() => { setMenuOpen(false); nav("/dashboard"); }} icon={<LayoutGrid size={16} />} />
+                    <div className="h-px bg-silver/50 my-1.5 mx-2" />
+                    <MenuItem label="Se déconnecter" onClick={handleLogout} icon={<LogOut size={16} />} danger />
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => nav("/login")}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-nex-grad text-white font-semibold text-sm"
+            >
+              <User size={18} />
+              Connexion
+            </button>
+          )}
         </div>
       </div>
     </header>
+  );
+}
+
+function MenuItem({ label, onClick, icon, danger }: {
+  label: string; onClick: () => void; icon: React.ReactNode; danger?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition hover:bg-silver/30 ${
+        danger ? "text-red-600" : "text-ink"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }

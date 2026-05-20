@@ -1,37 +1,27 @@
 """Point d'entree FastAPI."""
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.db import base_all  # noqa: F401  -- enregistre tous les modeles SQLAlchemy
+from app.db import base_all  # noqa: F401
 
-from app.api.v1.endpoints import auth
-from app.api.v1.endpoints import auth, categories
-from app.api.v1.endpoints import auth, categories, products
-from app.api.v1.endpoints import auth, categories, products, orders
 from app.api.v1.endpoints import (
-    auth,
-    categories,
-    products,
-    orders,
-    stripe_webhook,
-    stats,
-    admin_users,
+    auth, categories, products, orders, stripe_webhook, stats, admin_users, uploads
 )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Hooks startup / shutdown."""
-    # Startup
     print(f"[{settings.APP_NAME}] Demarrage en mode {settings.APP_ENV}")
     yield
-    # Shutdown
     print(f"[{settings.APP_NAME}] Arret")
 
 
+# 1. On cree l'app D'ABORD
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
@@ -42,7 +32,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ===== CORS =====
+# 2. CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -50,22 +40,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
-app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
-app.include_router(products.router, prefix="/api/v1/products", tags=["products"])
-app.include_router(orders.router, prefix="/api/v1/orders", tags=["orders"])
-app.include_router(stripe_webhook.router, prefix="/api/v1/stripe", tags=["stripe"])
-app.include_router(stats.router, prefix="/api/v1/stats", tags=["stats"])
-app.include_router(admin_users.router, prefix="/api/v1/admin/users", tags=["admin"])
 
+# 3. Dossier statique pour les images uploadees (APRES la creation de app)
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+
+# 4. Healthcheck
 @app.get("/")
 def bonjour():
     return {"message": " backnd marche tourn sur le port 8003 "}
 
-# ===== Healthcheck =====
 @app.get("/health", tags=["meta"])
 def health():
-    """hello app depuis backend"""
     return {
         "status": "ok",
         "app": settings.APP_NAME,
@@ -83,11 +71,14 @@ def root():
     })
 
 
-# ===== Routers a brancher au fur et a mesure =====
-# from app.api.v1.endpoints import auth, users, products, categories, orders, stripe_webhook
-# app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
-# app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
-# app.include_router(products.router, prefix="/api/v1/products", tags=["products"])
-# app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
-# app.include_router(orders.router, prefix="/api/v1/orders", tags=["orders"])
-# app.include_router(stripe_webhook.router, prefix="/api/v1/stripe", tags=["stripe"])
+# 5. Routers
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(categories.router, prefix="/api/v1/categories", tags=["categories"])
+app.include_router(products.router, prefix="/api/v1/products", tags=["products"])
+app.include_router(orders.router, prefix="/api/v1/orders", tags=["orders"])
+app.include_router(stripe_webhook.router, prefix="/api/v1/stripe", tags=["stripe"])
+app.include_router(stats.router, prefix="/api/v1/stats", tags=["stats"])
+app.include_router(admin_users.router, prefix="/api/v1/admin/users", tags=["admin"])
+app.include_router(uploads.router, prefix="/api/v1/uploads", tags=["uploads"])
+
+

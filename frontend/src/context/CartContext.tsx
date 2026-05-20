@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 import type { Product, CartLine } from "../types";
 
@@ -22,7 +22,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { localStorage.setItem(STORAGE, JSON.stringify(lines)); }, [lines]);
 
-  function add(product: Product, qty = 1) {
+  const add = useCallback((product: Product, qty = 1) => {
     setLines(prev => {
       const found = prev.find(l => l.product.id === product.id);
       if (found) {
@@ -31,19 +31,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { product, quantity: qty }];
     });
-  }
+  }, []);
 
-  function setQty(productId: string, qty: number) {
+  const setQty = useCallback((productId: string, qty: number) => {
     setLines(prev => qty <= 0
       ? prev.filter(l => l.product.id !== productId)
       : prev.map(l => l.product.id === productId ? { ...l, quantity: qty } : l));
-  }
+  }, []);
 
-  function remove(productId: string) {
+  const remove = useCallback((productId: string) => {
     setLines(prev => prev.filter(l => l.product.id !== productId));
-  }
+  }, []);
 
-  function clear() { setLines([]); }
+  const clear = useCallback(() => { setLines([]); }, []);
 
   const count = lines.reduce((s, l) => s + l.quantity, 0);
   const total = lines.reduce((s, l) => s + parseFloat(l.product.price) * l.quantity, 0);
