@@ -29,3 +29,5 @@ htmlcov/
 *.db
 
 uploads/
+.env.production
+.env.development

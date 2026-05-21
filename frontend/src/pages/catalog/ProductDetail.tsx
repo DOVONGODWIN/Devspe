@@ -130,7 +130,7 @@ export default function ProductDetail() {
       {/* Barre d'ajout fixe (mobile uniquement) */}
       {!outOfStock && (
         <div
-          className="md:hidden fixed left-0 right-0 bottom-0 z-30 bg-white border-t border-silver/50 px-4 pt-3 flex items-center gap-3"
+          className="md:hidden fixed left-0 right-0 bottom-0 z-40 bg-white border-t border-silver/50 px-4 pt-3 flex items-center gap-3"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)" }}
         >
           <QtyStepper qty={qty} setQty={setQty} max={product.stock} />

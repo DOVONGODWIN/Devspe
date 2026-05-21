@@ -1,13 +1,19 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, User, LayoutGrid, Plus, ShoppingCart } from "lucide-react";
 import { useCart } from "../../context/CartContext";
+import { useHideOnScroll } from "../../hooks/useHideOnScroll";
 
 export default function BottomNav() {
   const nav = useNavigate();
   const { pathname } = useLocation();
   const { count } = useCart();
+  const hidden = useHideOnScroll();
+
+  
+  if (pathname.startsWith("/product/")) return null;
 
   const items = [
+    
     { to: "/", icon: Home, key: "home" },
     { to: "/profile", icon: User, key: "profile" },
     { to: "/categories", icon: LayoutGrid, key: "menu" },
@@ -20,8 +26,11 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="md:hidden fixed left-0 right-0 bottom-0 z-40 flex justify-center pointer-events-none"
-      style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)" }}
+      className="md:hidden fixed left-0 right-0 bottom-0 z-40 flex justify-center pointer-events-none transition-transform duration-300 ease-out"
+      style={{
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 10px)",
+        transform: hidden ? "translateY(140%)" : "translateY(0)",
+      }}
     >
       <div className="pointer-events-auto mx-3 mb-1 w-full max-w-[420px] bg-white rounded-[26px] shadow-[0_8px_30px_rgba(20,23,43,0.18)] px-2 py-2 flex items-center justify-between">
         {items.map(({ to, icon: Icon, key, center, badge }) => {
