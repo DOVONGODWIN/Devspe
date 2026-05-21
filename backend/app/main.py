@@ -10,7 +10,8 @@ from app.core.config import settings
 from app.db import base_all  # noqa: F401
 
 from app.api.v1.endpoints import (
-    auth, categories, products, orders, stripe_webhook, stats, admin_users, uploads
+    auth, categories, products, orders, stripe_webhook, stats,
+    admin_users, admin_products, uploads
 )
 
 
@@ -79,6 +80,7 @@ app.include_router(orders.router, prefix="/api/v1/orders", tags=["orders"])
 app.include_router(stripe_webhook.router, prefix="/api/v1/stripe", tags=["stripe"])
 app.include_router(stats.router, prefix="/api/v1/stats", tags=["stats"])
 app.include_router(admin_users.router, prefix="/api/v1/admin/users", tags=["admin"])
+app.include_router(admin_products.router, prefix="/api/v1/admin/products", tags=["admin"])
 app.include_router(uploads.router, prefix="/api/v1/uploads", tags=["uploads"])
 
 
