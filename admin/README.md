@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+Back office — Nexaa Market Admin
+Interface d'administration de la plateforme, réservée aux comptes ayant le rôle admin. Développée avec React + TypeScript + Vite.
+Stack
+React 18 · TypeScript · Vite · TailwindCSS · Axios · React Router · Recharts · Lucide React.
+Structure
+src/
+├── api/
+│   ├── client.ts        Client Axios (stockage de session dédié à l'admin)
+│   └── admin.ts         Appels aux endpoints d'administration
+├── context/             AuthContext (la connexion refuse les non-admins)
+├── pages/
+│   ├── Login.tsx        Connexion administrateur
+│   ├── Dashboard.tsx    KPI globaux + graphique catégories
+│   ├── UsersPage.tsx    Gestion des utilisateurs
+│   └── ProductsPage.tsx Modération des produits
+├── components/
+│   ├── Layout.tsx       Sidebar (desktop) + navigation (mobile)
+│   ├── ProtectedRoute.tsx  Accès réservé au rôle admin
+│   └── Spinner.tsx
+├── types/
+└── utils/
+Contrôle d'accès
+L'accès est protégé à deux niveaux :
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend : la connexion refuse les comptes non-admin, et ProtectedRoute empêche l'affichage des pages sans le rôle admin.
+Backend : les endpoints /admin/* et /stats/admin exigent le rôle admin, vérifié côté serveur. C'est le verrou réel.
 
-Currently, two official plugins are available:
+Lancer en local
+bashnpm install
+npm run dev
+# http://localhost:5180
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Nécessite un compte avec le rôle admin. Pour promouvoir un compte :
+sqlUPDATE users SET role = 'ADMIN' WHERE email = 'mon-email';
 
-## React Compiler
+Variables d'environnement
+env# .env.development
+VITE_API_URL=http://localhost:8003/api/v1
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# .env.production
+VITE_API_URL=https://api.godwin-messanhdovon.espl-angers.yt/api/v1
+Build de production
+bashnpm run build
+Déployé sur le sous-domaine admin, avec un .htaccess de routage monopage.
+Fonctionnalités
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Tableau de bord des statistiques globales (utilisateurs, produits, commandes, revenu)
+Gestion des comptes : activation/désactivation, attribution du rôle admin
+Modération des produits : masquer/publier, supprimer
